@@ -16,14 +16,9 @@
   include: add_gen_key.yml
   when: clients_to_add is defined
 
-- name: OpenVPN | Add Clients | Add clients in database and generate passwords
+- name: OpenVPN | Add Clients | Add clients in database and generate passwords + otp key
   include: add_in_db.yml
   when: clients_to_add is defined and enable_auth_user_password
 
-- name: OpenVPN | Add Clients | Send credentials to client
-  ansible.builtin.include_role:
-    name: send_credentials
-  vars:
-     client_to_add: "{{ item }}"
-  with_items:
-      - "{{ clients_to_add }}"
+#END
+## Shared variables clients_to_add

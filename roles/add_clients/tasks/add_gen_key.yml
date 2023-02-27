@@ -1,6 +1,5 @@
 ---
 - name: OpenVPN | Add Clients | Check for existing private key passwords
-  delegate_to: localhost
   stat:
     path: "{{ local_creds_folder }}/{{ item }}/{{ openvpn_server_common_name }}_pk_pass.txt"
   become: False
@@ -16,7 +15,6 @@
   when: not client_pk_passwords_local.results[0].stat.exists
 
 - name: OpenVPN | Add Clients | Make local destination
-  delegate_to: localhost
   file:
     path: "{{ local_creds_folder }}/{{ item }}/"
     state: directory
@@ -25,7 +23,6 @@
     - "{{ clients_to_add }}"
 
 - name: OpenVPN | Add Clients | Write private key pass phrases
-  delegate_to: localhost
   copy:
     content: "{{ item[1].stdout }}"
     dest: "{{ local_creds_folder }}/{{ item[0] }}/{{ openvpn_server_common_name }}_pk_pass.txt"
@@ -37,7 +34,6 @@
   when: not client_pk_passwords_local.results[0].stat.exists
 
 - name: OpenVPN | Add Clients | Read private key pass phrases
-  delegate_to: localhost
   command: cat "{{ local_creds_folder }}/{{ item }}/{{ openvpn_server_common_name }}_pk_pass.txt"
   no_log: true
   become: False

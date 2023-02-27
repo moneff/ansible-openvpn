@@ -63,7 +63,8 @@ iptables_path: "/sbin/iptables"
 openvpn_path_iptables_rules: "{{ openvpn_path }}/openvpn_iptables_rules.sh"
 
 # path where fetched credentials are stored
-local_creds_folder: "{{ playbook_dir }}/../fetched_creds/{{ openvpn_server_remote_host }}"
+local_creds_path: "/tmp/openvpn/fetched_creds"
+local_creds_folder: "{{ local_creds_path }}/{{ openvpn_server_remote_host }}"
 
 openvpn_path: "/etc/openvpn"
 openvpn_path_ccd: "{{ openvpn_path }}/ccd"
@@ -93,15 +94,3 @@ openvpn_auth_digest: "SHA1"
 openvpn_tls_cipher: "TLS-DHE-DSS-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256:TLS-DHE-DSS-WITH-AES-256-CBC-SHA256"
 
 openvpn_easyrsa_version: v3.0.6
-
-email_gateway_sender: "no-reply@team.dev"
-email_gateway_sender_name: "Your team"
-email_gateway_mail_username: "AKIASR3HAOESU2DJXCVU"
-email_gateway_mail_port: "465"
-
-vpn_mail_subject: "OpenVPN config"
-vpn_mail_body: |
-  Hi
-
-  There is a guide to configure VPN:
-  Your links
