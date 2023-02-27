@@ -1,0 +1,48 @@
+---
+- name: OpenVPN | Add in DB | Generate passwords
+  shell: echo "$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c15)"
+  no_log: true
+  register: client_db_passwords
+  with_items: "{{ clients_to_add }}"
+
+- name: OpenVPN | Add in DB | Write passwords in file
+  copy:
+    content: "Login: {{ item[0] }} \nPass: {{ item[1].stdout }}"
+    dest: "{{ local_creds_folder }}/{{ item[0] }}/{{ openvpn_server_common_name }}_passwords.txt"
+  no_log: true
+  become: False
+  with_together:
+    - "{{ clients_to_add }}"
+    - "{{ client_db_passwords.results }}"
+
+- name: OpenVPN | Add in DB | Add users in database
+  shell: ./openvpn-user create --user={{ item[0] }} --password='{{ item[1].stdout }}' --db.path={{ openvpn_path_db_users }}/users.db
+  args:
+    chdir: "{{ openvpn_path_db_users }}"
+  with_together:
+    - "{{ clients_to_add }}"
+    - "{{ client_db_passwords.results }}"
+
+- name: OpenVPN | Send Credentials | Create dir for otp authentication
+  file:
+    path: "/etc/openvpn/otp/"
+    state: directory
+
+- name: OpenVPN | Add in DB | Generate and write otp key in file
+  block:
+    - name: OpenVPN | Add in DB | Generate otp key
+      command: "google-authenticator --time-based --disallow-reuse --force --rate-limit=3 --rate-time=30 --window-size=3 -l {{ item }} -s /etc/openvpn/otp/{{ item }}.google_authenticator --i='{{ openvpn_issuer_name }}'"
+      become: False
+      register: otp_configs
+      with_items:
+        - "{{ clients_to_add }}"
+
+    - name: OpenVPN | Add in DB | Write otp key in file
+      copy:
+        content: "{{ item[1].stdout }}"
+        dest: "{{ local_creds_folder }}/{{ item[0] }}/{{ openvpn_server_common_name }}_otp.txt"
+      with_together:
+        - "{{ clients_to_add }}"
+        - "{{ otp_configs.results }}"
+  when: enable_2fa
+  become: False

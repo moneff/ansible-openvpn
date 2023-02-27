@@ -1,6 +1,22 @@
 fetched_creds
 *.retry
-/inventories
 test/host_vars
 test/group_vars
 test/docker-inventory
+.DS_Store
+
+# Terraform
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# .tfvars files
+*.tfvars
+
+# Ansible
+ansible/.vault_pass
+
+#IDE dev
+.idea

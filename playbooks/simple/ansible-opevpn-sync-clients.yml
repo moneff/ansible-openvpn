@@ -1,0 +1,68 @@
+---
+- hosts: all
+  become: true
+  gather_facts: true
+  collections:
+    - moneff.ansible_openvpn
+  roles:
+   - "moneff.ansible_openvpn.sync_clients"
+  tasks:
+    - name: OpenVPN | Get and Send Credentials
+      block:
+      - name: OpenVPN | Get configs clients ovpn files
+        command: cat "{{ openvpn_path_pki }}/ovpn/{{ item }}-pki-embedded.ovpn"
+        no_log: true
+        become: false
+        register: clients_config
+        with_items:
+          - "{{ clients_to_add }}"
+
+      - name: OpenVPN | Get users/passwords file
+        command: cat "{{ local_creds_folder }}/{{ item }}/{{ openvpn_server_common_name }}_passwords.txt"
+        no_log: true
+        become: false
+        register: clients_login_password
+        with_items:
+          - "{{ clients_to_add }}"
+        when: enable_auth_user_password
+
+      - name: OpenVPN | Get pass phrase clients
+        command: cat "{{ local_creds_folder }}/{{ item }}/{{ openvpn_server_common_name }}_pk_pass.txt"
+        no_log: true
+        become: false
+        register: clients_config_passphrase
+        with_items:
+          - "{{ clients_to_add }}"
+
+      - name: OpenVPN | Get otp key clients
+        command: cat "{{ local_creds_folder }}/{{ item }}/{{ openvpn_server_common_name }}_otp.txt"
+        no_log: true
+        become: false
+        register: clients_otp_config
+        with_items:
+          - "{{ clients_to_add }}"
+
+      #Your steps send credentials user
+      - name: OpenVPN | Debug
+        debug:
+          msg:
+            - "Config: {{ item[0].stdout }}"
+            - "Otp: {{ item[1].stdout if enable_2fa }}"
+            - "Pass Cert: {{ item[2].stdout }}"
+            - "Cogiguration: {{ item[3].stdout }}"
+        with_together:
+          - "{{ clients_config.results }}"
+          - "{{ clients_otp_config.results }}"
+          - "{{ clients_config_passphrase.results }}"
+          - "{{ clients_login_password.results }}"
+        no_log: true
+        when: debug is defined
+
+      #Send credentials data
+
+      - name: OpenVPN | Absent all local users credentials
+        file:
+          path: "{{ local_creds_path }}"
+          state: absent
+      when: clients_to_add | length > 0
+

@@ -1,3 +1,46 @@
+# Ansible Collection - moneff.ansible-openvpn
+
+Documentation for the collection.
+Collection use for install openvpn and management  clients 
+
+## install 
+Add file requirements.yml content
+```
+ collections:
+  - name: git@github.com:moneff/ansible-openvpn.git
+    type: git
+    version: Draft
+```
+run 'ansible-galaxy install -r requirements.yml --force'
+
+## fast start 
+1. Copy playbooks/simple in our ansible playbooks
+2. Copy inventories in our ansible directory
+Call:
+```
+ansible-playbook ansible-opevpn-install.yml
+ansible-playbook ansible-opevpn-install.yml
+```
+
+
+######################################################
+Full refactoring (21.02.2023)
+- add send credentials in email
+- delete storage sensitive data in localhost
+- add storage users in db module (user/password)
+- Added support OTP key (google authenticator)
+- Update openvpn 2.5 (support tls-crypt-v2)
+- Add send otp key in slack
+- Add tls-crypt-v2
+- Performance settings clients ovpn files
+- update ciphers openvpn
+- add stop current openvpn service for increase stability playbook
+- remove every standard default server
+- Others small fix
+- add ansible collection (install through ansible galaxy)
+
+
+
 # ansible-openvpn [![Build Status](https://travis-ci.org/BastiPaeltz/ansible-openvpn.svg?branch=master)](https://travis-ci.org/BastiPaeltz/ansible-openvpn)
 
 Ansible role and playbooks for installing openvpn and managing clients.
@@ -71,7 +114,7 @@ The OpenVPN server is now up and running. Time to add some clients.
 When you run the `sync_clients.yml` playboook it will sync the desired state (which clients are in the `valid_clients` list, by default "phone" and "laptop") with the current state (which clients are currently valid on the OpenVPN host).  
 Clients that are not desired but currently valid will be revoked.  
 Clients that are desired but currently not present on the OpenVPN host will be created/added.  
-**NOTE**: Once you revoke a client, it is NOT possible to make it valid again, so I suggest using somewhat unique names as `valid_clients`.  
+**NOTE**: Once you revoke a client, it is NOT possible to make it valid again, so I suggest using somewhat unique names as `valid_clients`.
 
 By default once you run the `sync_clients.yml` playbook it will first tell you which clients it will add and revoke before doing it, you will have to manually confirm before it proceeds. You can disable this prompt by setting `prompt_before_syncing_clients` to `false`.
 
@@ -104,15 +147,15 @@ You'll be prompted for the private key passphrase, this is stored in a file endi
 Three different OpenVPN configuration files are provided because OpenVPN clients on different platforms have different requirements for how the PKI information is referenced by the .ovpn file. This is just for convenience. All the configuration information and PKI info is the same, it's just formatted differently to support different OpenVPN clients.
 
 - **PKI embedded** - the easiest if your client supports it. Only one file required and all the PKI information is embedded.
-  - `XYZ-pki-embedded.ovpn`
+    - `XYZ-pki-embedded.ovpn`
 - **PKCS#12** - all the PKI information is stored in the PKCS#12 file and referenced by the config. This can be more secure on Android where the OS can store the information in the PKCS#12 file in hardware backed encrypted storage.
-  - `XYZ-pkcs.ovpn`
-  - `XYZ.p12`
+    - `XYZ-pkcs.ovpn`
+    - `XYZ.p12`
 - **PKI files** - if the above two fail, all clients should support this. All of the PKI information is stored in separate files and referenced by the config.
-  - `XYZ-pki-files.ovpn` - OpenVPN configuration
-  - `ca.pem` - CA certificate
-  - `XYZ.key` - client private key
-  - `XYZ.pem` - client certificate
+    - `XYZ-pki-files.ovpn` - OpenVPN configuration
+    - `ca.pem` - CA certificate
+    - `XYZ.key` - client private key
+    - `XYZ.pem` - client certificate
 
 All private keys (embedded in config, pkcs, and .key) are encrypted with a passphrase to facilitate secure distribution to client devices.
 
@@ -124,9 +167,9 @@ Entering a pass phrase every time the client is started can be annoying. There a
 
 1. When starting the client, use `openvpn --config [config] --askpass [pass.txt]` if you don't want to enter the password for the private key
 
-  From the OpenVPN man page:
+From the OpenVPN man page:
 
-  > If file is specified, read the password from the first line of file. Keep in mind that storing your password in a file to a certain extent invalidates the extra security provided by using an encrypted key.
+> If file is specified, read the password from the first line of file. Keep in mind that storing your password in a file to a certain extent invalidates the extra security provided by using an encrypted key.
 
 ### Adding clients using a CSR
 
@@ -179,7 +222,7 @@ This also comes in handy when managing clients with the `sync_clients.yml` playb
 ## How to manage state
 
 You can use this to manage state by committing and continously updating configuration, especially for client syncing.
-There are different approaches you can take, here are two suggestions:  
+There are different approaches you can take, here are two suggestions:
 - Manage all configuration files (all `inventories/` files) on a separate location, e.g. inside of [Jenkins](https://wiki.jenkins.io/display/JENKINS/Config+File+Provider+Plugin) and once these change, trigger a run of the playbook(s), especially `sync_clients.yml`. Disadvantage: You can not easily run this from anywhere else since the configuration files are missing.
 - Encrypt all configuration files (e.g. using `ansible-vault`), commit them to source control and trigger a run of the playbook(s) after a new commit is pushed.
 
@@ -198,20 +241,20 @@ There is documentation on the most important variables in [all.yml](./inventorie
 ### OpenVPN server configuration
 For the full server configuration, see [`etc_openvpn_server.conf.j2`](playbooks/roles/openvpn/templates/etc_openvpn_server.conf.j2)
 - `tls-auth` aids in mitigating risk of denial-of-service attacks. Additionally, when combined with usage of UDP at the transport layer (the default configuration used by *ansible-openvpn-hardened*), it complicates attempts to port scan the OpenVPN server because any unsigned packets can be immediately dropped without sending anything back to the scanner.
-  - From the [OpenVPN hardening guide](https://community.openvpn.net/openvpn/wiki/Hardening):
+    - From the [OpenVPN hardening guide](https://community.openvpn.net/openvpn/wiki/Hardening):
 
-    > The tls-auth option uses a static pre-shared key (PSK) that must be generated in advance and shared among all peers. This features adds "extra protection" to the TLS channel by requiring that incoming packets have a valid signature generated using the PSK key... The primary benefit is that an unauthenticated client cannot cause the same CPU/crypto load against a server as the junk traffic can be dropped much sooner. This can aid in mitigating denial-of-service attempts.
+      > The tls-auth option uses a static pre-shared key (PSK) that must be generated in advance and shared among all peers. This features adds "extra protection" to the TLS channel by requiring that incoming packets have a valid signature generated using the PSK key... The primary benefit is that an unauthenticated client cannot cause the same CPU/crypto load against a server as the junk traffic can be dropped much sooner. This can aid in mitigating denial-of-service attempts.
 
 - `push block-outside-dns` used by OpenVPN server to fix a potential dns leak on Windows 10
-  - See https://community.openvpn.net/openvpn/ticket/605
+    - See https://community.openvpn.net/openvpn/ticket/605
 - `tls-cipher` limits allowable TLS ciphers to a subset that supports [**perfect forward secrecy**](https://en.wikipedia.org/wiki/Forward_secrecy)
-  - From wikipedia:
+    - From wikipedia:
 
-	> Forward secrecy protects past sessions against future compromises of secret keys or passwords. If forward secrecy is used, encrypted communications and sessions recorded in the past cannot be retrieved and decrypted should long-term secret keys or passwords be compromised in the future, even if the adversary actively interfered.
+      > Forward secrecy protects past sessions against future compromises of secret keys or passwords. If forward secrecy is used, encrypted communications and sessions recorded in the past cannot be retrieved and decrypted should long-term secret keys or passwords be compromised in the future, even if the adversary actively interfered.
 
 - `cipher` set to `AES-256-CBC` by default
 - `2048` bit RSA key size by default.
-  - This can be increased to `4096` by changing `openvpn_key_size` in [`defaults/main.yml`](playbooks/roles/openvpn/defaults/main.yml) if you don't mind extra processing time. Consensus seems to be that 2048 is sufficient for all but the most sensitive data.
+    - This can be increased to `4096` by changing `openvpn_key_size` in [`defaults/main.yml`](playbooks/roles/openvpn/defaults/main.yml) if you don't mind extra processing time. Consensus seems to be that 2048 is sufficient for all but the most sensitive data.
 
 ### OpenVPN client configuration
 For the full client configuration, see [`client_common.ovpn.j2`](playbooks/roles/add_clients/templates/client_common.ovpn.j2)
@@ -270,7 +313,7 @@ Now we have a Debian container running, that has systemd and ssh installed.
 You could set up a whole bunch of containers this way and test multi-host configurations.
 
 5. Install OpenVPN
-  
+
 We can now run the `install.yml` playbook.
 ```
 ansible-playbook playbooks/install.yml --diff --private-key test/id_rsa -i test/docker-inventory -e "load_iptables_rules=true" -e "openvpn_key_size=1024" -e "@test/ansible-vars/01_install_${distribution}.yml"
