@@ -3,6 +3,8 @@
 # If this is not the case with `inventory_hostname`, one could use `ansible_default_ipv4.address`.
 openvpn_server_remote_host: "83.69.136.169" #public ip
 
+drop_first: false # delete all exists data openvpn
+
 enable_auth_user_password: true ## login/password
 #and
 enable_2fa: true ## login/password and otp fields

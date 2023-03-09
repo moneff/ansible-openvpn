@@ -1,5 +1,11 @@
 ---
 
+- name: OpenVPN | Install | Absent all data Openvpn
+  file:
+    path: "{{ openvpn_path }}"
+    state: absent
+  when: drop_first
+
 - name: OpenVPN | Install | Set Distro/Version specific variables
   include_vars: "{{ item }}"
   with_first_found:
@@ -10,13 +16,13 @@
   notify:
     - clear history
 
-- include: packages.yml
-- include: pki.yml
+- include_tasks: packages.yml
+- include_tasks: pki.yml
 
-- include: auth_db.yml
+- include_tasks: auth_db.yml
   when: enable_auth_user_password
 
-- include: openvpn.yml
-- include: 2fa_ga.yml
+- include_tasks: openvpn.yml
+- include_tasks: 2fa_ga.yml
   when: enable_2fa
-- include: firewall.yml
+- include_tasks: firewall.yml
