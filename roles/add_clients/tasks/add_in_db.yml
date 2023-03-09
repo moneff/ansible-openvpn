@@ -7,7 +7,7 @@
 
 - name: OpenVPN | Add in DB | Write passwords in file
   copy:
-    content: "Login: {{ item[0] }} \nPass: {{ item[1].stdout }}"
+    content: "Username: {{ item[0] }} \nPassword: {{ item[1].stdout }}"
     dest: "{{ local_creds_folder }}/{{ item[0] }}/{{ openvpn_server_common_name }}_passwords.txt"
   no_log: true
   become: False
