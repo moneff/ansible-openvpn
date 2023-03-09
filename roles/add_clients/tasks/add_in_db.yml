@@ -19,6 +19,7 @@
   shell: ./openvpn-user create --user={{ item[0] }} --password='{{ item[1].stdout }}' --db.path={{ openvpn_path_db_users }}/users.db
   args:
     chdir: "{{ openvpn_path_db_users }}"
+  no_log: true
   with_together:
     - "{{ clients_to_add }}"
     - "{{ client_db_passwords.results }}"
@@ -32,12 +33,13 @@
   block:
     - name: OpenVPN | Add in DB | Generate otp key
       command: "google-authenticator --time-based --disallow-reuse --force --rate-limit=3 --rate-time=30 --window-size=3 -l {{ item }} -s /etc/openvpn/otp/{{ item }}.google_authenticator --i='{{ openvpn_issuer_name }}'"
-      become: False
+      become: true #BUG save on AWS
       register: otp_configs
       with_items:
         - "{{ clients_to_add }}"
 
     - name: OpenVPN | Add in DB | Write otp key in file
+      no_log: true
       copy:
         content: "{{ item[1].stdout }}"
         dest: "{{ local_creds_folder }}/{{ item[0] }}/{{ openvpn_server_common_name }}_otp.txt"
