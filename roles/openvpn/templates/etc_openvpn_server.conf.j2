@@ -47,8 +47,6 @@ reneg-sec 0
 ### Extra Configurations Below
 duplicate-cn
 
-auth-gen-token 3600
-reneg-sec 3600
 verify-client-cert require
 
 {% if enable_auth_user_password %}
@@ -59,6 +57,6 @@ verify-client-cert require
 
 {% if enable_2fa %}
   plugin openvpn-plugin-auth-pam.so "openvpn login USERNAME password PASSWORD pin OTP"
-  auth-gen-token 3600
+  auth-gen-token 86400
   reneg-sec 3600
 {% endif %}
