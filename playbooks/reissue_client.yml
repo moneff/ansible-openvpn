@@ -1,7 +1,7 @@
-- name: Reissue credentials for clients from valid_clients variable with OpenVPN's current PKI
+- name: Reissue credentials for client from valid_clients variable with OpenVPN's current PKI
 # ========================================================
   # Allows caller to override hosts using '-e cmd_hosts='
   hosts: "{{ cmd_hosts | default('openvpn') }}"
 
   roles:
-    - reissue_clients
+    - reissue_client
