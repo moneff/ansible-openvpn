@@ -24,17 +24,6 @@
   meta: end_play
   when: (clients_to_add | length==0) or (clients_to_revoke | length==0) or (client_to_reset not in currently_valid_clients)
 
-- name: OpenVPN | Sync Clients | Ask user if we should proceed
-  pause:
-    prompt: "We will add {{ clients_to_add }} and we will revoke {{ clients_to_revoke }}. Press 'Y' or 'y' to proceed"
-  when: prompt_before_syncing_clients
-  register: sync_prompt
-
-- name: OpenVPN | Sync Clients | Abort if user does not want to proceed
-  fail:
-    msg: "Aborted due to user input!"
-  when: prompt_before_syncing_clients and sync_prompt.user_input not in ["Y", "y"]
-
 - name: OpenVPN | Sync Clients | Revoke clients
   include_role:
     name: revoke_clients
