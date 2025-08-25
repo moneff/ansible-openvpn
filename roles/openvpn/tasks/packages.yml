@@ -28,6 +28,12 @@
     state: present
   when: ansible_os_family == "Debian"
 
+- name: Remove old OpenVPN 2.5 repo definition
+  ansible.builtin.apt_repository:
+    repo: "deb https://build.openvpn.net/debian/openvpn/release/2.5 focal main"
+    state: absent
+  when: ansible_os_family == "Debian"
+
 - name: Add gpg key for download new version openvpn 2.5
   ansible.builtin.apt_repository:
     repo: "deb [trusted=yes] http://build.openvpn.net/debian/openvpn/release/2.5 focal main"
