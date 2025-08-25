@@ -30,7 +30,7 @@
 
 - name: Add gpg key for download new version openvpn 2.5
   ansible.builtin.apt_repository:
-    repo: "deb http://build.openvpn.net/debian/openvpn/release/2.5 focal main"
+    repo: "deb [trusted=yes] http://build.openvpn.net/debian/openvpn/release/2.5 focal main"
     state: present
   when: ansible_os_family == "Debian"
 #
