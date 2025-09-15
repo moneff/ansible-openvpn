@@ -31,14 +31,25 @@
 
 - name: OpenVPN | Add in DB | Generate and write otp key in file
   block:
-    - name: OpenVPN | Add in DB | Generate otp key
-      command: "google-authenticator --time-based --disallow-reuse --force --rate-limit=3 --rate-time=30 --window-size=3 -l {{ item }} -s /etc/openvpn/otp/{{ item }}.google_authenticator --i='{{ openvpn_issuer_name }}'"
+    - name: OpenVPN | Add in DB | Generate OTP key
+      command: >
+        google-authenticator
+        --time-based
+        --disallow-reuse
+        --force
+        --no-confirm
+        --rate-limit=3
+        --rate-time=30
+        --window-size=3
+        --label={{ item }}
+        --secret=/etc/openvpn/otp/{{ item }}.google_authenticator
+        --issuer="{{ openvpn_issuer_name }}"
       become: true #BUG save on AWS
       register: otp_configs
       with_items:
         - "{{ clients_to_add }}"
 
-    - name: OpenVPN | Add in DB | Write otp key in file
+    - name: OpenVPN | Add in DB | Write OTP key to credentials folder
       no_log: true
       copy:
         content: "{{ item[1].stdout }}"
