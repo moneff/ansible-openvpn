@@ -51,9 +51,9 @@
 - name: OpenVPN | Sync Clients | Add clients
   include_role:
     name: add_clients
-  when: clients_to_add | length
+  when: (clients_to_add | length) > 0
 
 - name: OpenVPN | Sync Clients | Revoke clients
   include_role:
     name: revoke_clients
-  when: clients_to_revoke | length
+  when: (clients_to_revoke | length) > 0
